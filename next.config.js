@@ -12,7 +12,9 @@ const nextConfig = {
   },
   // Configuración para Server Components
   experimental: {
-    serverActions: true,
+    serverActions: {
+      allowedOrigins: ['localhost:3000'],
+    },
   },
 }
 

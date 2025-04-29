@@ -1,15 +1,15 @@
 "use client";
 
-import { ChatInput, ChatLayout } from "@/components/ChatWindow";
-import { GuideInfoBox } from "@/components/guide/GuideInfoBox";
+import { ChatInput, ChatLayout } from "../../components/ChatWindow";
+import { GuideInfoBox } from "../../components/guide/GuideInfoBox";
 import { ReactNode, Suspense, useState } from "react";
 import { toast } from "sonner";
-import { cn } from "@/utils/cn";
+import { cn } from "../../utils/cn";
 import { useStream } from "@langchain/langgraph-sdk/react";
 import { useQueryState } from "nuqs";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Message } from "@langchain/langgraph-sdk";
+import type { Message } from "@langchain/langgraph-sdk";
 
 const onError = (error: unknown) => {
   toast.error("Failed to handle input", {
