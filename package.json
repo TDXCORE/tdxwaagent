@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@browserbasehq/stagehand": "^1.0.0",
-    "@ibm-cloud/watsonx-ai": "^0.2.0",
     "@langchain/community": "^0.3.37",
     "@langchain/core": "^0.3.43",
     "@langchain/langgraph": "^0.2.57",
@@ -37,7 +36,6 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
-    "ibm-cloud-sdk-core": "^4.0.8",
     "langchain": "^0.3.19",
     "lucide-react": "^0.473.0",
     "next": "^15.2.4",
@@ -66,5 +64,19 @@
     "prettier": "^3.4.2",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.4.5"
+  },
+  "peerDependenciesMeta": {
+    "@browserbasehq/stagehand": {
+      "optional": true
+    },
+    "@ibm-cloud/watsonx-ai": {
+      "optional": true
+    },
+    "ibm-cloud-sdk-core": {
+      "optional": true
+    },
+    "openai": {
+      "optional": true
+    }
   }
 }
