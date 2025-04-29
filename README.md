@@ -11,117 +11,112 @@ Aplicación CRM conversacional basada en WhatsApp Business, LangChain, OpenAI, N
 - UI con módulos Dashboard, Inbox, Chat AI, Settings
 - Implementación de Guardrails AI para seguridad
 
-## Configuración del Proyecto
+## Estructura del Proyecto
 
-### 1. Configuración de Variables de Entorno
+- `/app`: Código de la aplicación Next.js
+  - `/dashboard`: Panel de control con KPIs y métricas
+  - `/inbox`: Gestión de conversaciones de WhatsApp
+  - `/chat-ai`: Interfaz para interactuar con el agente
+  - `/settings`: Configuración del comportamiento del agente
+  - `/api`: Endpoints de API (webhook, chat)
+- `/components`: Componentes reutilizables
+- `/lib`: Utilidades y configuración
+- `/scripts`: Scripts de configuración y utilidades
 
-1. Copia el archivo `.env.example` a `.env`
-2. Completa las variables de entorno con tus credenciales:
-   - `OPENAI_API_KEY`: Tu clave de API de OpenAI
-   - Variables de Supabase (ya configuradas)
-   - Variables de WhatsApp Business API
+## Requisitos Previos
 
-### 2. Configuración de la Base de Datos en Supabase
+- Node.js (v18 o superior)
+- Cuenta en Supabase
+- Cuenta en OpenAI
+- Cuenta de desarrollador en Meta (para WhatsApp Business API)
 
-#### Opción 1: Usando la Interfaz de Supabase
+## Configuración Local
 
-1. Inicia sesión en [Supabase](https://supabase.com) y accede a tu proyecto
-2. Ve a la sección "SQL Editor"
-3. Crea una nueva consulta
-4. Copia y pega el contenido del archivo `scripts/create_database.sql`
-5. Ejecuta la consulta
-
-#### Opción 2: Usando la CLI de Supabase
-
-1. Instala la CLI de Supabase si aún no la tienes:
+1. Clonar el repositorio:
    ```bash
-   npm install -g supabase
+   git clone https://github.com/TDXCORE/tdxwaagent.git
+   cd tdxwaagent
    ```
 
-2. Inicia sesión en Supabase:
+2. Instalar dependencias:
    ```bash
-   supabase login
+   yarn install
    ```
 
-3. Ejecuta el script SQL:
+3. Configurar variables de entorno:
+   - Copiar `.env.example` a `.env`
+   - Completar las variables requeridas
+
+4. Configurar la base de datos:
    ```bash
-   supabase db execute --project-ref lfdfpqedfxlqnsqewacn -f scripts/create_database.sql
+   yarn setup-db
    ```
 
-### 3. Instalación de Dependencias
-
-```bash
-npm install
-# o
-yarn install
-```
-
-### 4. Ejecución del Proyecto en Desarrollo
-
-```bash
-npm run dev
-# o
-yarn dev
-```
-
-El servidor se iniciará en `http://localhost:3000`.
-
-### 5. Configuración del Webhook de WhatsApp
-
-1. Configura un túnel seguro a tu servidor local (usando ngrok, Cloudflare Tunnel, etc.)
+5. Iniciar el servidor de desarrollo:
    ```bash
-   ngrok http 3000
+   yarn dev
    ```
 
-2. Copia la URL HTTPS generada (ej: `https://your-tunnel-url.ngrok.io`)
+## Despliegue en Vercel
 
-3. Configura el webhook en la plataforma de desarrolladores de Meta:
-   - URL del Webhook: `https://your-tunnel-url.ngrok.io/api/webhook`
-   - Token de Verificación: El mismo valor que configuraste en `WHATSAPP_VERIFY_TOKEN`
-   - Suscríbete a los eventos `messages` y `message_status`
+### Preparación para el Despliegue
 
-## Estructura de la Base de Datos
+1. Asegúrate de que todas las dependencias estén correctamente configuradas en `package.json`
 
-El proyecto utiliza las siguientes tablas en Supabase:
+2. Actualiza el archivo de bloqueo:
+   ```bash
+   yarn update-lockfile
+   ```
 
-- `clients`: Información de los clientes/contactos de WhatsApp
-- `conversations`: Historial de mensajes entrantes y salientes
-- `leads`: Respuestas y calificación del flujo BANT
-- `requirements`: Datos del levantamiento de requerimientos funcionales
-- `meetings`: Reuniones agendadas para demos o seguimientos
-- `users`: Usuarios del sistema (administradores, agentes, etc.)
-- `settings`: Configuraciones globales del sistema
-- `audit_logs`: Registro de auditoría para cambios importantes
+3. Configura las variables de entorno en Vercel:
+   - `NEXT_PUBLIC_SUPABASE_URL`: URL de tu proyecto Supabase
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Clave anónima de Supabase
+   - `SUPABASE_SERVICE_ROLE_KEY`: Clave de servicio de Supabase
+   - `OPENAI_API_KEY`: Clave de API de OpenAI
+   - `WHATSAPP_VERIFY_TOKEN`: Token de verificación para el webhook de WhatsApp
+   - `WHATSAPP_API_TOKEN`: Token de API de WhatsApp Business
+   - `WHATSAPP_PHONE_NUMBER_ID`: ID del número de teléfono de WhatsApp
 
-Para ver el diagrama de relaciones (ERD), consulta el archivo `docs/database_erd.md`.
+### Despliegue
 
-## Flujo de Trabajo
+1. Conecta tu repositorio a Vercel
 
-1. El cliente envía un mensaje a través de WhatsApp
-2. El webhook recibe el mensaje y lo procesa
-3. El agente LangChain determina la etapa del cliente:
-   - Si es primer contacto, realiza preguntas BANT
-   - Si ya completó BANT, puede iniciar levantamiento de requerimientos
-   - Si completó requerimientos, puede agendar reuniones
-4. La respuesta se envía de vuelta al cliente a través de WhatsApp
-5. Los datos se almacenan en Supabase para su gestión en la UI
+2. Configura el proyecto:
+   - Framework Preset: Next.js
+   - Build Command: `yarn build`
+   - Output Directory: `.next`
+   - Install Command: `yarn install --immutable`
 
-## Desarrollo
+3. Despliega la aplicación
 
-### Estructura del Proyecto
+## Solución de Problemas
 
-- `/app`: Componentes y páginas de Next.js (App Router)
-- `/app/api`: Endpoints de API, incluyendo el webhook
-- `/app/langgraph`: Implementación del agente LangChain
-- `/components`: Componentes reutilizables de UI
-- `/lib`: Utilidades y configuraciones
-- `/scripts`: Scripts para configuración y mantenimiento
-- `/docs`: Documentación del proyecto
+### Problemas con Dependencias
 
-### Contribución
+Si encuentras problemas con las dependencias durante el despliegue:
 
-1. Crea una rama para tu característica (`git checkout -b feature/amazing-feature`)
-2. Realiza tus cambios
-3. Haz commit de tus cambios (`git commit -m 'Add some amazing feature'`)
-4. Envía tu rama (`git push origin feature/amazing-feature`)
-5. Abre un Pull Request
+1. Verifica que todas las dependencias peer estén instaladas:
+   ```bash
+   yarn install
+   ```
+
+2. Si hay conflictos con el archivo de bloqueo:
+   ```bash
+   yarn update-lockfile
+   ```
+
+3. Asegúrate de que las versiones de Next.js y React sean compatibles
+
+### Problemas con Variables de Entorno
+
+Si encuentras problemas con las variables de entorno:
+
+1. Verifica que todas las variables requeridas estén configuradas en Vercel
+
+2. Asegúrate de que las variables públicas tengan el prefijo `NEXT_PUBLIC_`
+
+3. Para variables del lado del servidor, usa las acciones del servidor de Next.js
+
+## Licencia
+
+Este proyecto está licenciado bajo la Licencia MIT - ver el archivo LICENSE para más detalles.

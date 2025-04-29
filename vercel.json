@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "buildCommand": "yarn build",
+  "installCommand": "yarn install --immutable",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "@next_public_supabase_url",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@next_public_supabase_anon_key",
+    "SUPABASE_SERVICE_ROLE_KEY": "@supabase_service_role_key",
+    "OPENAI_API_KEY": "@openai_api_key",
+    "WHATSAPP_VERIFY_TOKEN": "@whatsapp_verify_token",
+    "WHATSAPP_API_TOKEN": "@whatsapp_api_token",
+    "WHATSAPP_PHONE_NUMBER_ID": "@whatsapp_phone_number_id"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_SUPABASE_URL": "@next_public_supabase_url",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@next_public_supabase_anon_key",
+      "SUPABASE_SERVICE_ROLE_KEY": "@supabase_service_role_key",
+      "OPENAI_API_KEY": "@openai_api_key",
+      "WHATSAPP_VERIFY_TOKEN": "@whatsapp_verify_token",
+      "WHATSAPP_API_TOKEN": "@whatsapp_api_token",
+      "WHATSAPP_PHONE_NUMBER_ID": "@whatsapp_phone_number_id"
+    }
+  }
+}
