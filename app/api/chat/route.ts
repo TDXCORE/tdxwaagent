@@ -1,73 +1,58 @@
-import { NextRequest, NextResponse } from "next/server";
-import { Message as VercelChatMessage, StreamingTextResponse } from "ai";
+import { NextRequest, NextResponse } from 'next/server';
+import { processMessage, processRequirements } from '../../../app/langgraph/agent/agent';
+import { supabase } from '../../../lib/supabaseClient';
 
-import { ChatOpenAI } from "@langchain/openai";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { HttpResponseOutputParser } from "langchain/output_parsers";
-
-export const runtime = "edge";
-
-const formatMessage = (message: VercelChatMessage) => {
-  return `${message.role}: ${message.content}`;
-};
-
-const TEMPLATE = `You are a pirate named Patchy. All responses must be extremely verbose and in pirate dialect.
-
-Current conversation:
-{chat_history}
-
-User: {input}
-AI:`;
-
-/**
- * This handler initializes and calls a simple chain with a prompt,
- * chat model, and output parser. See the docs for more information:
- *
- * https://js.langchain.com/docs/guides/expression_language/cookbook#prompttemplate--llm--outputparser
- */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const messages = body.messages ?? [];
-    const formattedPreviousMessages = messages.slice(0, -1).map(formatMessage);
-    const currentMessageContent = messages[messages.length - 1].content;
-    const prompt = PromptTemplate.fromTemplate(TEMPLATE);
-
-    /**
-     * You can also try e.g.:
-     *
-     * import { ChatAnthropic } from "@langchain/anthropic";
-     * const model = new ChatAnthropic({});
-     *
-     * See a full list of supported models at:
-     * https://js.langchain.com/docs/modules/model_io/models/
-     */
-    const model = new ChatOpenAI({
-      temperature: 0.8,
-      model: "gpt-4o-mini",
-    });
-
-    /**
-     * Chat models stream message chunks rather than bytes, so this
-     * output parser handles serialization and byte-encoding.
-     */
-    const outputParser = new HttpResponseOutputParser();
-
-    /**
-     * Can also initialize as:
-     *
-     * import { RunnableSequence } from "@langchain/core/runnables";
-     * const chain = RunnableSequence.from([prompt, model, outputParser]);
-     */
-    const chain = prompt.pipe(model).pipe(outputParser);
-
-    const stream = await chain.stream({
-      chat_history: formattedPreviousMessages.join("\n"),
-      input: currentMessageContent,
-    });
-
-    return new StreamingTextResponse(stream);
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: e.status ?? 500 });
+    const { message, clientId } = await req.json();
+    
+    if (!message || !clientId) {
+      return NextResponse.json(
+        { error: 'Se requieren message y clientId' },
+        { status: 400 }
+      );
+    }
+    
+    // Get client data to determine which flow to use
+    const { data: clientData, error: clientError } = await supabase
+      .from('clients')
+      .select('bant_stage, requirement_stage')
+      .eq('id', clientId)
+      .single();
+    
+    if (clientError) {
+      console.error('[API] Error fetching client data:', clientError);
+      return NextResponse.json(
+        { error: 'Error al obtener datos del cliente' },
+        { status: 500 }
+      );
+    }
+    
+    let response: string;
+    
+    // Determine which flow to use
+    if (clientData.bant_stage === 'completed' && clientData.requirement_stage) {
+      // Use requirements flow
+      console.log(`[API] Using requirements flow for client ${clientId}`);
+      response = await processRequirements(message, clientId);
+    } else {
+      // Use BANT flow
+      console.log(`[API] Using BANT flow for client ${clientId}`);
+      response = await processMessage(message, clientId);
+    }
+    
+    // Update client's last_contact_at
+    await supabase
+      .from('clients')
+      .update({ last_contact_at: new Date().toISOString() })
+      .eq('id', clientId);
+    
+    return NextResponse.json({ response });
+  } catch (error) {
+    console.error('[API] Error processing chat message:', error);
+    return NextResponse.json(
+      { error: 'Error interno del servidor' },
+      { status: 500 }
+    );
   }
 }
