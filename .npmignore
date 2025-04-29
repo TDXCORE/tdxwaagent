@@ -1,0 +1,47 @@
+# Archivos y directorios a ignorar al publicar el paquete npm
+
+# Archivos de desarrollo
+.git
+.github
+.vscode
+.idea
+.DS_Store
+*.log
+*.swp
+*.swo
+
+# Archivos de configuración
+.env
+.env.*
+.eslintrc*
+.prettierrc*
+.yarnrc*
+.npmrc
+tsconfig.json
+jest.config.js
+next.config.js
+vercel.json
+
+# Directorios de desarrollo
+node_modules
+coverage
+.next
+out
+dist
+build
+.vercel
+
+# Archivos de prueba
+__tests__
+*.test.*
+*.spec.*
+
+# Documentación y ejemplos
+docs
+examples
+README.md
+CHANGELOG.md
+LICENSE
+
+# Scripts
+scripts
